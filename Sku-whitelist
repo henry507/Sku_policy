@@ -1,15 +1,15 @@
 data "azurerm_subscription" "current" {}
 
-resource "azurerm_management_group" "blacklsitsku" {
-  display_name = "blacklsitsku"
+resource "azurerm_management_group" "this" {
+  display_name = var.display_name
 }
 
-resource "azurerm_policy_definition" "blacklsitsku" {
-  name         = "blacklsitsku"
+resource "azurerm_policy_definition" "this" {
+  name         = var.name
   policy_type  = "Custom"
   mode         = "All"
-  display_name = "blacklsitsku"
-  management_group_id = azurerm_management_group.blacklsitsku.id
+  display_name = var.display_name 
+  management_group_id = azurerm_management_group.this.id
 
 
 
@@ -84,13 +84,31 @@ policy_rule = <<POLICY_RULE
 POLICY_RULE
 }
 
-  resource "azurerm_subscription_policy_assignment" "whitelisku" {
-  name                 = "blacklsitsku"
-  policy_definition_id = azurerm_policy_definition.blacklsitsku.id
+  resource "azurerm_subscription_policy_assignment" "this" {
+  name                 = var.name
+  policy_definition_id = azurerm_policy_definition.this.id
   subscription_id      = data.azurerm_subscription.current.id
 }
-resource "azurerm_management_group_policy_assignment" "blacklsitsku" {
-  name                 = "blacklist"
-  policy_definition_id = azurerm_policy_definition.blacklsitsku.id
-  management_group_id  = azurerm_management_group.blacklsitsku.id
+resource "azurerm_management_group_policy_assignment" "this" {
+  name                 = var.name
+  policy_definition_id = azurerm_policy_definition.this.id
+  management_group_id  = azurerm_management_group.this.id
+}
+ 
+ 
+ --------providers---------
+ terraform {
+  required_version = "~> 1.1"
+
+
+  required_providers {
+    azurerm = {
+      source  = "hashicorp/azurerm"
+      version = "~> 3.20"
+    }
+   
+  }
+}
+provider "azurerm" {
+   features {}
 }
