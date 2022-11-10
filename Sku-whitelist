@@ -1,0 +1,96 @@
+data "azurerm_subscription" "current" {}
+
+resource "azurerm_management_group" "blacklsitsku" {
+  display_name = "blacklsitsku"
+}
+
+resource "azurerm_policy_definition" "blacklsitsku" {
+  name         = "blacklsitsku"
+  policy_type  = "Custom"
+  mode         = "All"
+  display_name = "blacklsitsku"
+  management_group_id = azurerm_management_group.blacklsitsku.id
+
+
+
+policy_rule = <<POLICY_RULE
+ {
+    "if": {
+        "allOf": [
+          {
+            "field": "type",
+            "equals": "Microsoft.Compute/virtualMachines"
+          },
+         
+          {
+            "not": {
+              "field": "Microsoft.Compute/virtualMachines/sku.name",
+              "in": [
+              
+              "Standard_B2s",
+              "Standard_B2ms",
+              "Standard_B1s",
+              "Standard_B1ls",
+              "Standard_B4ms",
+              "Standard_B1ms",
+              "Standard_B8ms",
+              "Standard_B12ms",
+              "Standard_B16ms",
+              "Standard_B20ms",
+
+              "Standard_D2ads_v5",
+              "Standard_D2as_v5",
+              "Standard_D2ds_v5",
+              "Standard_D2s_v5",
+              "Standard_D4ads_v5",
+              "Standard_D4as_v5",
+              "Standard_D4ds_v5",
+              "Standard_D4s_v5",
+              "Standard_D8ads_v5",
+              "Standard_D8as_v5",
+              "Standard_D8ds_v5",
+              "Standard_D8s_v5",
+              "Standard_D16ads_v5",
+              "Standard_D16as_v5",
+              "Standard_D16ds_v5",
+              "Standard_D16s_v5",
+
+              "Standard_D2as_v4",
+              "Standard_D2ds_v4",
+              "Standard_D2s_v4",
+              "Standard_D4as_v4",
+              "Standard_D4ds_v4",
+              "Standard_D4s_v4",
+              "Standard_D8as_v4",
+              "Standard_D8ds_v4",
+              "Standard_D8s_v4",
+              "Standard_D16as_v4",
+              "Standard_D16ds_v4",
+              "Standard_D16s_v4",
+
+              "Standard_F2s_v2",
+              "Standard_F4s_v2",
+              "Standard_F8s_v2",
+              "Standard_F16s_v2"
+           ]
+            }
+          }
+        ]
+      },
+      "then": {
+        "effect": "Deny"
+    }
+  }
+POLICY_RULE
+}
+
+  resource "azurerm_subscription_policy_assignment" "whitelisku" {
+  name                 = "blacklsitsku"
+  policy_definition_id = azurerm_policy_definition.blacklsitsku.id
+  subscription_id      = data.azurerm_subscription.current.id
+}
+resource "azurerm_management_group_policy_assignment" "blacklsitsku" {
+  name                 = "blacklist"
+  policy_definition_id = azurerm_policy_definition.blacklsitsku.id
+  management_group_id  = azurerm_management_group.blacklsitsku.id
+}
